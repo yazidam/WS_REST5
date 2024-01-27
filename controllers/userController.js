@@ -1,5 +1,6 @@
 const User = require("../models/user");
 const bcrypt = require("bcrypt");
+const generatetoken = require("../utlis/generatetoken");
 const createUser = async (req, res) => {
   try {
     const user = new User(req.body);
@@ -12,6 +13,30 @@ const createUser = async (req, res) => {
     return res.status(201).json(newUser);
   } catch (error) {
     console.log("error", error);
+  }
+};
+
+const authUser = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
+    console.log("user", user);
+    console.log("req.body", req.body);
+    const isMatch = user && (await bcrypt.compare(password, user.password));
+    console.log("isMatch", isMatch);
+    if (user && isMatch) {
+      res.json({
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        token: generatetoken(user._id),
+      });
+      console.log("login succ");
+    } else {
+      return res.status(401).json("invalid eamil or password");
+    }
+  } catch (error) {
+    console.log("errr", error);
   }
 };
 
@@ -74,4 +99,5 @@ module.exports = {
   getuser,
   deleteUser,
   updateUser,
+  authUser,
 };

@@ -6,13 +6,16 @@ const {
   getuser,
   deleteUser,
   updateUser,
+  authUser,
 } = require("../controllers/userController");
 const { uservalidator, validate } = require("../middlewares/validators");
+const protect = require("../middlewares/authMiddleware");
 
 const router = express.Router();
 
 router.post("/add", uservalidator, validate, createUser);
-router.get("/all", getUsers);
+router.post("/login", authUser);
+router.get("/all", protect, getUsers);
 router.get("/:id", getuser);
 router.delete("/:id", deleteUser);
 router.patch(":/id", updateUser);
